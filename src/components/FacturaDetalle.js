@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { TextField, Button, Container, Typography, Box, MenuItem } from '@mui/material';
+import { generarFacturaPDF } from './FacturaPDF';
 
 const FacturaDetalle = ({ onVolver }) => {
   const [pedidos, setPedidos] = useState([]);
@@ -95,6 +96,15 @@ const FacturaDetalle = ({ onVolver }) => {
         }
       });
   
+      // Generar PDF de la factura
+      const factura = {
+        cliente: clienteNombre,
+        pedido: pedidoSeleccionado,
+        fecha_emision: fechaEmision,
+        total: total
+      };
+      generarFacturaPDF(factura);
+
       // Notificar al usuario que la facturación fue exitosa
       alert('Pedido facturado exitosamente');
   

@@ -8,6 +8,7 @@ import Pedidos from './views/Pedidos';
 import Facturas from './views/Facturas';
 import React from 'react';
 import Dashboard from './components/Dashboard';
+import ListadoFacturas from './components/FacturasList';
 import Login from './components/Login';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
                   <Route path="/proveedores" element={<Proveedores/>} />
                   <Route path="/pedidos" element={<Pedidos />} />
                   <Route path="/facturas" element={<Facturas />} />
+                  <Route path="/facturaslista" element={<ListadoFacturas />} />
                 </Routes>
               </Dashboard>
             ) : (

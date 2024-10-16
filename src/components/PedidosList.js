@@ -1,37 +1,57 @@
-// src/components/PedidosList.js
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Container, Typography } from '@mui/material';
 import PedidoForm from './PedidoForm';
 
 const PedidosList = () => {
   const [pedidos, setPedidos] = useState([]);
+  const [clientes, setClientes] = useState({});
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
-  const fetchPedidos = useCallback(async () => {
+  useEffect(() => {
+    fetchPedidos();
+  }, []);
+
+  const fetchPedidos = async () => {
     try {
       const response = await axios.get('http://127.0.0.1:8000/api/pedidos/', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
       setPedidos(response.data);
+      fetchClientesParaPedidos(response.data);
     } catch (error) {
       console.error('Error al obtener los pedidos', error);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    fetchPedidos();
-  }, [fetchPedidos]);
+  const fetchClientesParaPedidos = async (pedidos) => {
+    try {
+      const clientesData = {};
+      for (const pedido of pedidos) {
+        if (!clientesData[pedido.cliente]) {
+          const clienteResponse = await axios.get(`http://127.0.0.1:8000/api/clientes/${pedido.cliente}/`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+          clientesData[pedido.cliente] = clienteResponse.data.nombre;
+        }
+      }
+      setClientes((prevClientes) => ({ ...prevClientes, ...clientesData }));
+    } catch (error) {
+      console.error('Error al obtener los clientes', error);
+    }
+  };
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://127.0.0.1:8000/api/pedidos/${id}/`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
       fetchPedidos();
     } catch (error) {
@@ -79,7 +99,7 @@ const PedidosList = () => {
                     <TableCell>{pedido.id}</TableCell>
                     <TableCell>{pedido.fecha}</TableCell>
                     <TableCell>{pedido.estado}</TableCell>
-                    <TableCell>{pedido.cliente}</TableCell>
+                    <TableCell>{clientes[pedido.cliente] || 'Cargando...'}</TableCell>
                     <TableCell>
                       <Button
                         variant="outlined"

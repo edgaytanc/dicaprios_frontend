@@ -42,6 +42,9 @@ const Dashboard = ({ children }) => {
             <ListItem button component={Link} to="/pedidos">
               <ListItemText primary="Gestión de Pedidos" />
             </ListItem>
+            <ListItem button component={Link} to="/facturas">
+              <ListItemText primary="Facturación" />
+            </ListItem>
           </List>
         </Box>
       </Drawer>

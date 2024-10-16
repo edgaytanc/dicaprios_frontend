@@ -4,6 +4,7 @@ import axios from 'axios';
 import { TextField, Button, Container, Typography, Box, MenuItem } from '@mui/material';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import DetallePedidoForm from './DetallePedidoForm';
 
 const PedidoForm = ({ pedido, onPedidoUpdated }) => {
   const [fecha, setFecha] = useState(new Date());
@@ -91,25 +92,34 @@ const PedidoForm = ({ pedido, onPedidoUpdated }) => {
           {pedido ? 'Editar Pedido' : 'Añadir Nuevo Pedido'}
         </Typography>
         <form onSubmit={handleSubmit}>
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="body1" sx={{ textAlign: 'left', mb: 1 }}>
-              Fecha
-            </Typography>
+          <Box sx={{ mt: 2, mb: 2 }}>
             <DatePicker
               selected={fecha}
               onChange={(date) => setFecha(date)}
               dateFormat="yyyy-MM-dd"
-              className="form-control"
+              customInput={
+                <TextField
+                  label="Fecha"
+                  variant="outlined"
+                  fullWidth
+                  value={fecha}
+                  onChange={() => {}}
+                />
+              }
             />
           </Box>
           <TextField
+            select
             label="Estado"
             variant="outlined"
             margin="normal"
             fullWidth
             value={estado}
             onChange={(e) => setEstado(e.target.value)}
-          />
+          >
+            <MenuItem value="Pendiente">Pendiente</MenuItem>
+            <MenuItem value="Facturado">Facturado</MenuItem>
+          </TextField>
           <TextField
             select
             label="Cliente"
@@ -146,6 +156,7 @@ const PedidoForm = ({ pedido, onPedidoUpdated }) => {
             {mostrarDetalles ? 'Ocultar Detalles' : 'Ver Detalles'}
           </Button>
         )}
+        {mostrarDetalles && <DetallePedidoForm pedidoId={pedido?.id} />}
       </Box>
     </Container>
   );

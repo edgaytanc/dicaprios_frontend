@@ -5,6 +5,7 @@ import Productos from './views/Productos';
 import Categorias from './views/Categorias';
 import Proveedores from './views/Proveedores';
 import Pedidos from './views/Pedidos';
+import Facturas from './views/Facturas';
 import React from 'react';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
@@ -30,6 +31,7 @@ function App() {
                   <Route path="/categorias" element={<Categorias/>} />
                   <Route path="/proveedores" element={<Proveedores/>} />
                   <Route path="/pedidos" element={<Pedidos />} />
+                  <Route path="/facturas" element={<Facturas />} />
                 </Routes>
               </Dashboard>
             ) : (

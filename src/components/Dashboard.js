@@ -1,16 +1,46 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Drawer, List, ListItem, ListItemText, Box, CssBaseline, AppBar, Toolbar, Typography } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import { Drawer, List, ListItem, ListItemText, Box, CssBaseline, AppBar, Toolbar, Typography, IconButton, Button } from '@mui/material';
+import { Home, People, ShoppingCart, Category, LocalShipping, Receipt, Menu, Logout } from '@mui/icons-material';
 
 const Dashboard = ({ children }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Perform logout logic here
+    navigate('/login');
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-          <Typography variant="h6" noWrap>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+          >
+            <Menu />
+          </IconButton>
+          <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
             Dicaprios Sport
           </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton color="inherit" component={Link} to="/">
+              <Home />
+            </IconButton>
+            <IconButton color="inherit" component={Link} to="/clientes">
+              <People />
+            </IconButton>
+            <IconButton color="inherit" component={Link} to="/pedidos">
+              <ShoppingCart />
+            </IconButton>
+            <IconButton color="inherit" onClick={handleLogout}>
+              <Logout />
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -25,24 +55,31 @@ const Dashboard = ({ children }) => {
         <Box sx={{ overflow: 'auto' }}>
           <List>
             <ListItem button component={Link} to="/">
+              <Home sx={{ mr: 2 }} />
               <ListItemText primary="Inicio" />
             </ListItem>
             <ListItem button component={Link} to="/clientes">
+              <People sx={{ mr: 2 }} />
               <ListItemText primary="Gestión de Clientes" />
             </ListItem>
             <ListItem button component={Link} to="/productos">
+              <Category sx={{ mr: 2 }} />
               <ListItemText primary="Gestión de Productos" />
             </ListItem>
             <ListItem button component={Link} to="/categorias">
+              <Category sx={{ mr: 2 }} />
               <ListItemText primary="Gestión de Categorias" />
             </ListItem>
             <ListItem button component={Link} to="/proveedores">
+              <LocalShipping sx={{ mr: 2 }} />
               <ListItemText primary="Gestión de Proveedores" />
             </ListItem>
             <ListItem button component={Link} to="/pedidos">
+              <ShoppingCart sx={{ mr: 2 }} />
               <ListItemText primary="Gestión de Pedidos" />
             </ListItem>
             <ListItem button component={Link} to="/facturas">
+              <Receipt sx={{ mr: 2 }} />
               <ListItemText primary="Facturación" />
             </ListItem>
           </List>

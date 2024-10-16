@@ -11,6 +11,7 @@ const FacturaDetalle = ({ onVolver }) => {
   const [clienteNombre, setClienteNombre] = useState('');
   const [clienteId, setClienteId] = useState('');
   const [fechaEmision] = useState(new Date().toISOString().slice(0, 10));
+  const [detallesPedido, setDetallesPedido] = useState([]);
 
   useEffect(() => {
     fetchPedidos();
@@ -39,8 +40,8 @@ const FacturaDetalle = ({ onVolver }) => {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
-      const totalPedido = response.data
-        .reduce((acc, item) => acc + parseFloat(item.subtotal), 0);
+      setDetallesPedido(response.data);
+      const totalPedido = response.data.reduce((acc, item) => acc + parseFloat(item.subtotal), 0);
       setTotal(totalPedido);
 
       // Obtener nombre e ID del cliente asociado al pedido
@@ -86,7 +87,7 @@ const FacturaDetalle = ({ onVolver }) => {
   
       // Crear la factura después de actualizar el pedido
       await axios.post('http://127.0.0.1:8000/api/facturas/', {
-        cliente: pedidoActualizado.cliente, // Asegúrate de usar el ID del cliente
+        cliente: pedidoActualizado.cliente,
         pedido: pedidoSeleccionado,
         fecha_emision: fechaEmision,
         total: total
@@ -96,12 +97,13 @@ const FacturaDetalle = ({ onVolver }) => {
         }
       });
   
-      // Generar PDF de la factura
+      // Generar PDF de la factura, incluyendo detalles del pedido
       const factura = {
         cliente: clienteNombre,
         pedido: pedidoSeleccionado,
         fecha_emision: fechaEmision,
-        total: total
+        total: total,
+        detalles: detallesPedido
       };
       generarFacturaPDF(factura);
 
@@ -112,13 +114,13 @@ const FacturaDetalle = ({ onVolver }) => {
       setPedidoSeleccionado('');
       setTotal(0);
       setClienteNombre('');
+      setDetallesPedido([]);
       // onVolver();
     } catch (error) {
       console.error('Error al facturar el pedido', error);
       alert('Error al facturar el pedido: ' + error.message);
     }
   };
-  
 
   return (
     <Container maxWidth="sm">
@@ -175,15 +177,15 @@ const FacturaDetalle = ({ onVolver }) => {
         >
           Facturar Pedido
         </Button>
-        <Button
+        {/* <Button
           variant="contained"
           color="secondary"
           fullWidth
           sx={{ mt: 2 }}
           onClick={onVolver}
         >
-          Imprimir Factura
-        </Button>
+          Volver
+        </Button> */}
       </Box>
     </Container>
   );

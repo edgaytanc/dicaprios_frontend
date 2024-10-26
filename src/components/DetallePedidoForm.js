@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { TextField, Button, Container, Typography, Box, MenuItem } from '@mui/material';
 
-const DetallePedidoForm = ({ pedidoId }) => {
+const DetallePedidoForm = ({ pedidoId, onDetalleUpdated }) => {
   const [productos, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
   const [cantidad, setCantidad] = useState('');
@@ -27,29 +27,50 @@ const DetallePedidoForm = ({ pedidoId }) => {
     }
   };
 
+  const handleProductoChange = (e) => {
+    const productoId = e.target.value;
+    setProductoSeleccionado(productoId);
+
+    // Obtener el precio del producto seleccionado
+    const producto = productos.find((prod) => prod.id === productoId);
+    if (producto) {
+      setPrecioUnitario(producto.precio);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('http://127.0.0.1:8000/api/detalles-pedido/', {
+      const response = await axios.post('http://127.0.0.1:8000/api/detalles-pedido/', {
         pedido: pedidoId,
         producto: productoSeleccionado,
         cantidad,
         precio_unitario: precioUnitario,
-        subtotal: cantidad * precioUnitario,
+        subtotal: precioUnitario * cantidad,
       }, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
-      alert('Producto añadido al pedido exitosamente');
+  
+      if (response.status === 201) {
+        alert('Detalle del pedido añadido exitosamente');
+        if (onDetalleUpdated) {
+          onDetalleUpdated();
+        }
+      }
     } catch (error) {
-      console.error('Error al agregar el producto al pedido', error);
-      alert('Error al agregar el producto al pedido');
-    } finally {
-      setLoading(false);
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(error.response.data.error);
+      } else {
+        console.error('Error al agregar el detalle del pedido', error);
+        alert('Error al agregar el detalle del pedido');
+      }
     }
+    setLoading(false);
   };
+  
 
   return (
     <Container maxWidth="sm">
@@ -65,7 +86,7 @@ const DetallePedidoForm = ({ pedidoId }) => {
             margin="normal"
             fullWidth
             value={productoSeleccionado}
-            onChange={(e) => setProductoSeleccionado(e.target.value)}
+            onChange={handleProductoChange}
           >
             {productos.map((prod) => (
               <MenuItem key={prod.id} value={prod.id}>
@@ -87,7 +108,7 @@ const DetallePedidoForm = ({ pedidoId }) => {
             margin="normal"
             fullWidth
             value={precioUnitario}
-            onChange={(e) => setPrecioUnitario(e.target.value)}
+            InputProps={{ readOnly: true }}
           />
           <Button
             variant="contained"

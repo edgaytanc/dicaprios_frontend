@@ -1,13 +1,18 @@
 // src/components/ProductosList.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Container, Typography } from '@mui/material';
-import ProductoForm from './ProductoForm';
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button,
+  Container, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
+} from '@mui/material';
+import ProductoForm from './ProductoForm'; // Asegúrate de importar ProductoForm aquí
 
 const ProductosList = () => {
   const [productos, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [productoAEliminar, setProductoAEliminar] = useState(null);
 
   useEffect(() => {
     fetchProductos();
@@ -26,14 +31,20 @@ const ProductosList = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteConfirm = (id) => {
+    setProductoAEliminar(id);
+    setOpenDialog(true);
+  };
+
+  const handleDelete = async () => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/productos/${id}/`, {
+      await axios.delete(`http://127.0.0.1:8000/api/productos/${productoAEliminar}/`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
       fetchProductos();
+      setOpenDialog(false);
     } catch (error) {
       console.error('Error al eliminar el producto', error);
     }
@@ -97,7 +108,7 @@ const ProductosList = () => {
                       <Button
                         variant="outlined"
                         color="secondary"
-                        onClick={() => handleDelete(producto.id)}
+                        onClick={() => handleDeleteConfirm(producto.id)}
                         sx={{ ml: 1 }}
                       >
                         Eliminar
@@ -108,6 +119,25 @@ const ProductosList = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <Dialog
+            open={openDialog}
+            onClose={() => setOpenDialog(false)}
+          >
+            <DialogTitle>Confirmar Eliminación</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                ¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenDialog(false)} color="primary">
+                Cancelar
+              </Button>
+              <Button onClick={handleDelete} color="secondary">
+                Eliminar
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       )}
     </Container>

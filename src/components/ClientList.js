@@ -1,10 +1,15 @@
 // src/components/ClientesList.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Container, Typography } from '@mui/material';
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button,
+  Container, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
+} from '@mui/material';
 
 const ClientesList = ({ onEditCliente }) => {
   const [clientes, setClientes] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [clienteAEliminar, setClienteAEliminar] = useState(null);
 
   useEffect(() => {
     fetchClientes();
@@ -23,14 +28,20 @@ const ClientesList = ({ onEditCliente }) => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteConfirm = (id) => {
+    setClienteAEliminar(id);
+    setOpenDialog(true);
+  };
+
+  const handleDelete = async () => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/clientes/${id}/`, {
+      await axios.delete(`http://127.0.0.1:8000/api/clientes/${clienteAEliminar}/`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
       fetchClientes();
+      setOpenDialog(false);
     } catch (error) {
       console.error('Error al eliminar el cliente', error);
     }
@@ -72,7 +83,7 @@ const ClientesList = ({ onEditCliente }) => {
                   <Button
                     variant="outlined"
                     color="secondary"
-                    onClick={() => handleDelete(cliente.id)}
+                    onClick={() => handleDeleteConfirm(cliente.id)}
                     sx={{ ml: 1 }}
                   >
                     Eliminar
@@ -83,6 +94,25 @@ const ClientesList = ({ onEditCliente }) => {
           </TableBody>
         </Table>
       </TableContainer>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+      >
+        <DialogTitle>Confirmar Eliminación</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleDelete} color="secondary">
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
